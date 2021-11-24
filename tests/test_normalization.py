@@ -20,5 +20,6 @@ def test_normalize_gesture_data():
                           filepath=os.path.join(test_output, f"{gesture}-norm-histograms.png"))
         plot_columns(normalized, name=f"{gesture} gesture normalized",
                      filepath=os.path.join(test_output, f"{gesture}-norm-plots.png"))
+        # https://numpy.org/doc/stable/reference/generated/numpy.allclose.html
         assert np.allclose(normalized.mean(), 0.0)
         assert np.allclose(normalized.std(), 1.0)
