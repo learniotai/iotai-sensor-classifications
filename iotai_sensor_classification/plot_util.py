@@ -1,10 +1,12 @@
 import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
+from .recording import filter_columns
 
 
 def column_histograms(data: pd.core.frame.DataFrame, name: str, bins=50, filepath=None):
-    """Make histograms of data columns"""
+    """Make histograms of numeric data columns"""
+    data = filter_columns(data=data, keep_dtypes=[np.float])
     columns = data.columns
     n_col = len(columns)
     side_a = side_b = int(np.ceil(np.sqrt(n_col)))
@@ -35,6 +37,7 @@ def column_histograms(data: pd.core.frame.DataFrame, name: str, bins=50, filepat
 
 def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None):
     """Make plots of data columns"""
+    data = filter_columns(data, keep_dtypes=[np.float])
     columns = data.columns
     n_col = len(columns)
     side_a = side_b = int(np.ceil(np.sqrt(n_col)))

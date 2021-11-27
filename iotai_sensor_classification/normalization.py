@@ -13,16 +13,24 @@ ONE_HOT_ENCODED_GESTURES = np.eye(NUM_GESTURES)
 """
 
 import numpy as np
+from .recording import filter_columns
+import pandas as pd
 
 
 def normalize_mean_std_dict(recordings: dict):
-    """Normalize data frames in dictionary"""
+    """Normalize numeric data from frames in dictionary.
+
+    Keep non numeric data as is."""
     names = recordings.keys()
     normals = {}
     for name_ in names:
         raw = recordings[name_]
-        normalized = normalize_mean_std(raw)
-        normals[name_] = normalized
+        raw_numbers = filter_columns(raw, keep_dtypes=[np.float])
+        normalized = normalize_mean_std(raw_numbers)
+        lost_columns = list(set(raw.columns) - set(raw_numbers.columns))
+        lost_raw = raw[lost_columns]
+        normalized_restored = pd.concat([normalized, lost_raw], axis=1)
+        normals[name_] = normalized_restored
     return normals
 
 

@@ -1,7 +1,7 @@
 """Test normalizing gesture recording data."""
 
 from iotai_sensor_classification.recording import read_recordings
-from iotai_sensor_classification.normalization import normalize_mean_std, normalize_mean_std_dict
+from iotai_sensor_classification.normalization import normalize_mean_std_dict
 from data.gestures import linear_accelerometer
 import os
 from iotai_sensor_classification.plot_util import column_histograms, plot_columns
