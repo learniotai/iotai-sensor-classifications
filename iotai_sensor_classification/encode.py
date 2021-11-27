@@ -5,7 +5,6 @@ import numpy as np
 from typing import List
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
-from tensorflow.keras.utils import to_categorical
 
 
 def create_one_hot_encoding_lookup(categories: List[str]):
