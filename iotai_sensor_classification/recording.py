@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import fnmatch
 import numpy as np
+from typing import Dict
+from .encode import LabelCoder
 
 
 def strip_extensions(filename: str):
@@ -37,9 +39,19 @@ def read_recordings(recordings_dir):
     named_recordings = {}
     for recording in csv_recordings:
         # strip off file extensions repeatedly
-        record_name = strip_extensions(recording)
+        record_label = strip_extensions(recording)
         recording_path = os.path.join(recordings_dir, recording)
         recording = pd.read_csv(recording_path)
-        recording["name"] = record_name
-        named_recordings[record_name] = recording
+        recording["label"] = record_label
+        named_recordings[record_label] = recording
     return named_recordings
+
+
+def parse_recording(labeled_recordings: Dict[str, pd.DataFrame], label_name="label"):
+    """Parse recordings into a dataset and create label decoder.
+    :return: parsed recordings, label coder for decoding labels."""
+    all_recordings = pd.concat(list(labeled_recordings.values()), axis=0)
+    label_coder = LabelCoder()
+    encoded_labels = label_coder.encode_labels(all_recordings[label_name])
+    all_recordings["label_code"] = list(encoded_labels)
+    return all_recordings, label_coder
