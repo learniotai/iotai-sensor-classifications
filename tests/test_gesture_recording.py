@@ -10,7 +10,7 @@ import pytest
 
 @pytest.fixture
 def gesture_recordings():
-    """Read gesture recordings for all tests in file.."""
+    """Read gesture recordings for all tests in file."""
     recordings_dir = os.path.dirname(linear_accelerometer.__file__)
     recordings = read_recordings(recordings_dir=recordings_dir)
     return recordings
