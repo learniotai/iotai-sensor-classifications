@@ -1,11 +1,11 @@
 """Test normalizing gesture recording data."""
 
+import os
+import numpy as np
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.normalization import normalize_mean_std_dict
 from data.gestures import linear_accelerometer
-import os
 from iotai_sensor_classification.plot_util import column_histograms, plot_columns
-import numpy as np
 
 
 def test_normalize_gesture_data():
