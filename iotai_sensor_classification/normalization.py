@@ -25,12 +25,8 @@ def normalize_mean_std_dict(recordings: dict):
     normals = {}
     for name_ in names:
         raw = recordings[name_]
-        raw_numbers = filter_columns(raw, keep_dtypes=[np.float])
-        normalized = normalize_mean_std(raw_numbers)
-        lost_columns = list(set(raw.columns) - set(raw_numbers.columns))
-        lost_raw = raw[lost_columns]
-        normalized_restored = pd.concat([normalized, lost_raw], axis=1)
-        normals[name_] = normalized_restored
+        normalized = normalize_mean_std(raw)
+        normals[name_] = normalized
     return normals
 
 
@@ -38,6 +34,11 @@ def normalize_mean_std(x: np.array):
     """Normalize to mean 0 and standard deviation 1.
     :param x: 2D matrix
     :return: Normalized 2D matrix"""
-    x -= x.mean(axis=0)
-    x /= x.std(axis=0)
-    return x
+    numbers = filter_columns(x, keep_dtypes=[np.float])
+    numbers -= numbers.mean(axis=0)
+    numbers /= numbers.std(axis=0)
+    lost_columns = list(set(x.columns) - set(numbers.columns))
+    lost_raw = x[lost_columns]
+    normalized_restored = pd.concat([numbers, lost_raw], axis=1)
+
+    return normalized_restored

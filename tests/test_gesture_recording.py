@@ -1,5 +1,5 @@
 """Test loading gesture recordings and visualizing data."""
-from iotai_sensor_classification.recording import read_recordings, parse_recording
+from iotai_sensor_classification.recording import read_recordings
 
 from data.gestures import linear_accelerometer
 import os
@@ -30,9 +30,3 @@ def test_read_gestures(gesture_recordings):
                           filepath=os.path.join(test_output, f"{gesture}-histograms.png"))
         plot_columns(gesture_data, name=f"{gesture} gesture",
                      filepath=os.path.join(test_output, f"{gesture}-plots.png"))
-
-
-def test_parse_gestures(gesture_recordings):
-    """Test parsing gesture data creating labels into a dataset for training and or testing models."""
-    parsed_gestures, label_coder = parse_recording(gesture_recordings)
-    assert all(label_coder.decode_one_hots(parsed_gestures["label_code"]) == parsed_gestures["label"])
