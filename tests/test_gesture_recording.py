@@ -25,7 +25,6 @@ def test_read_gestures(gesture_recordings):
     os.makedirs(test_output, exist_ok=True)
     for gesture in gestures:
         gesture_data = gesture_recordings[gesture]
-        assert all(gesture_data["label"] == gesture)
         column_histograms(gesture_data, name=f"{gesture} gesture",
                           filepath=os.path.join(test_output, f"{gesture}-histograms.png"))
         plot_columns(gesture_data, name=f"{gesture} gesture",
