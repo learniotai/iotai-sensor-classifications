@@ -5,7 +5,7 @@ import numpy as np
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.normalization import normalize_mean_std_dict
 from data.gestures import linear_accelerometer
-from iotai_sensor_classification.plot_util import column_histograms, plot_columns
+from iotai_sensor_classification.plot_util import column_histograms, plot_columns, plot_lines
 
 
 def test_normalize_gesture_data():
@@ -20,6 +20,9 @@ def test_normalize_gesture_data():
                           filepath=os.path.join(test_output, f"{gesture}-norm-histograms.png"))
         plot_columns(normalized, name=f"{gesture} gesture normalized",
                      filepath=os.path.join(test_output, f"{gesture}-norm-plots.png"))
+        motion_measures = normalized.drop(columns=['time', 'label'])
+        plot_lines(motion_measures, name=f"{gesture} normalized measurements",
+                   filepath=os.path.join(test_output, f"{gesture}-norm-lines.png"))
         # https://numpy.org/doc/stable/reference/generated/numpy.allclose.html
         assert np.allclose(normalized.mean(), 0.0)
         assert np.allclose(normalized.std(), 1.0)
