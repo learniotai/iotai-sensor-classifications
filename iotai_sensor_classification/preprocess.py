@@ -6,7 +6,7 @@ import numpy as np
 from .normalization import normalize_mean_std
 from .encode import LabelCoder
 
-SAMPLES_PER_RECORDING = 119
+SAMPLES_PER_RECORDING = 160
 
 
 def parse_recording(labeled_recordings: Dict[str, pd.DataFrame], samples_per_recording):

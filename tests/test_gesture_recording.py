@@ -3,7 +3,8 @@ from iotai_sensor_classification.recording import read_recordings
 
 from data.gestures import linear_accelerometer
 import os
-from iotai_sensor_classification.plot_util import column_histograms, plot_columns, plot_lines
+from iotai_sensor_classification.plot_util import column_histograms, \
+    plot_columns, plot_lines, histogram_overlay
 
 import pytest
 
@@ -32,3 +33,5 @@ def test_read_gestures(gesture_recordings):
         motion_measures = gesture_data.drop(columns=['time', 'label'])
         plot_lines(motion_measures, name=f"{gesture} gesture measurements",
                      filepath=os.path.join(test_output, f"{gesture}-lines.png"))
+        histogram_overlay(motion_measures, name=f"{gesture} gesture measurements",
+                   filepath=os.path.join(test_output, f"{gesture}-over-hist.png"))

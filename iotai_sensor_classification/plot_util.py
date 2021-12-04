@@ -36,7 +36,7 @@ def column_histograms(data: pd.core.frame.DataFrame, name: str, bins=50, filepat
         plt.show()
 
 
-def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None):
+def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertical_ticks=None):
     """Make plots of data columns each in own subplot."""
     data = filter_columns(data, keep_dtypes=[np.float])
     columns = data.columns
@@ -67,14 +67,38 @@ def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None):
         plt.show()
 
 
-def plot_lines(data: pd.core.frame.DataFrame, name: str, filepath=None):
+def plot_lines(data: pd.core.frame.DataFrame, name: str, filepath=None, vertical_tick_spacing=None):
     """Make multiline plot of data columns."""
+    data = filter_columns(data, keep_dtypes=[np.float])
+    columns = data.columns
+    fig = plt.figure(figsize=(12, 6))
+    for col in columns:
+        col_data = data[col]
+        plt.plot(col_data, label="{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()))
+        if vertical_tick_spacing:
+            max_horziontal = len(data)
+            for tic in range(0, max_horziontal, vertical_tick_spacing):
+                plt.axvline(x=tic, color='b', linestyle='dashed', alpha=0.1)
+    plt.legend()
+    plt.title(name)
+    if filepath is not None:
+        # plt.switch_backend("Agg")
+        plt.savefig(filepath)
+        plt.close()
+    else:
+        # plt.switch_backend("qt5agg")
+        plt.show()
+
+
+def histogram_overlay(data: pd.core.frame.DataFrame, name: str, filepath=None, bins=50, alpha=0.5):
+    """Make multihistogram of data columns."""
     data = filter_columns(data, keep_dtypes=[np.float])
     columns = data.columns
     plt.figure(figsize=(12, 6))
     for col in columns:
         col_data = data[col]
-        plt.plot(col_data, label=col)
+        plt.hist(col_data, label="{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()),
+                 bins=bins, alpha=alpha)
     plt.legend()
     plt.title(name)
     if filepath is not None:
