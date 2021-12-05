@@ -70,14 +70,16 @@ def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertic
 def plot_lines(data: pd.core.frame.DataFrame, name: str, filepath=None, vertical_tick_spacing=None):
     """Make multiline plot of data columns."""
     data = filter_columns(data, keep_dtypes=[np.float])
+    if vertical_tick_spacing:
+        index_min = data.index.min()
+        index_max = data.index.max()
     columns = data.columns
     fig = plt.figure(figsize=(12, 6))
     for col in columns:
         col_data = data[col]
         plt.plot(col_data, label="{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()))
         if vertical_tick_spacing:
-            max_horziontal = len(data)
-            for tic in range(0, max_horziontal, vertical_tick_spacing):
+            for tic in range(index_min, index_max+1, vertical_tick_spacing):
                 plt.axvline(x=tic, color='b', linestyle='dashed', alpha=0.1)
     plt.legend()
     plt.title(name)
