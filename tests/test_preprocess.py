@@ -31,7 +31,7 @@ def test_parse_gestures(gesture_recordings):
     n_col_measures = normed_gesture_measures.shape[2]
     col_measure_means = [normed_gesture_measures[:, :, col].mean() for col in range(n_col_measures)]
     col_measure_stds = [normed_gesture_measures[:, :, col].std() for col in range(n_col_measures)]
-    # normalization is done on all measures. Extra measurements not fitting in a sample are dropped causing mean
+    # normalization is done on all measures. Extra measurements not fitting in a sample window are dropped causing mean
     # and standard deviation to drift from mean=0 and std=1
     assert all(np.isclose(col_measure_means, 0.0, atol=0.02))
     assert all(np.isclose(col_measure_stds, 1.0, atol=0.01))
