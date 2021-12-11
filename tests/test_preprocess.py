@@ -25,7 +25,7 @@ def test_parse_gestures(gesture_recordings):
     os.makedirs(test_output, exist_ok=True)
     for label_name in window_checked.keys():
         label_data = window_checked[label_name]
-        plot_lines(label_data, name=f"{label_name} gesture filtered windows",
+        plot_lines(label_data, name=f"{label_name} gesture filtered {SAMPLES_PER_RECORDING} windows",
                filepath=os.path.join(test_output, f"{label_name}-filtered-windows.png"), vertical_tick_spacing=SAMPLES_PER_RECORDING)
     normed_gesture_measures, encoded_labels, label_coder = parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING)
     n_col_measures = normed_gesture_measures.shape[2]
