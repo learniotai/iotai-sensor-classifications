@@ -1,10 +1,8 @@
 import matplotlib.pylab as plt
-import matplotlib.lines as lines
 import numpy as np
 import pandas as pd
 from .recording import filter_columns
 from typing import Dict
-import pandas as pd
 import seaborn
 
 
@@ -22,8 +20,12 @@ def column_histograms(data: pd.core.frame.DataFrame, name: str, bins=50, filepat
     y = 0
     for col in columns:
         col_data = data[col]
-        a[x][y].hist(col_data, bins=bins)
-        a[x][y].set_title("{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()))
+        if side_b > 1:
+            axe = a[x][y]
+        else:
+            axe = a[x]
+        axe.hist(col_data, bins=bins)
+        axe.set_title("{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()))
         if x < side_a-1:
             x += 1
         else:
@@ -39,7 +41,7 @@ def column_histograms(data: pd.core.frame.DataFrame, name: str, bins=50, filepat
         plt.show()
 
 
-def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertical_ticks=None):
+def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertical_ticks=None, title_mean=True):
     """Make plots of data columns each in own subplot."""
     data = filter_columns(data, keep_dtypes=[np.float])
     columns = data.columns
@@ -53,8 +55,15 @@ def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertic
     y = 0
     for col in columns:
         col_data = data[col]
-        a[x][y].plot(col_data)
-        a[x][y].set_title("{col} {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std()))
+        if side_b > 1:
+            axe = a[x][y]
+        else:
+            axe = a[x]
+        axe.plot(col_data)
+        title_add_mean = ""
+        if title_mean:
+            title_add_mean = " {mean:.2f}+-{std:.2}".format(col=col, mean=col_data.mean(), std=col_data.std())
+        axe.set_title(f"{col}{title_add_mean}")
         if x < side_a-1:
             x += 1
         else:
