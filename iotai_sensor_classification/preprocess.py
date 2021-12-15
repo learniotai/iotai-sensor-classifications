@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 from .normalization import normalize_mean_std
 from .encode import LabelCoder
-from iotai_sensor_classification.plot_util import plot_lines
 
 SAMPLES_PER_RECORDING = 160
 
@@ -65,7 +64,7 @@ def check_windows(data, window_size=SAMPLES_PER_RECORDING):
     return keep_data
 
 
-def parse_recording(labeled_recordings: Dict[str, pd.DataFrame], samples_per_recording):
+def parse_recording(labeled_recordings: Dict[str, pd.DataFrame], samples_per_recording, is_one_hot=True):
     """Parse recordings into a dataset and create label decoder.
     :return: parsed recordings, label coder for decoding labels."""
     all_recordings = pd.concat(list(labeled_recordings.values()), axis=0)
@@ -90,8 +89,11 @@ def parse_recording(labeled_recordings: Dict[str, pd.DataFrame], samples_per_rec
         all_sample_labels += sample_labels
     all_sample_tensors = np.concatenate(all_samples)
     assert all_sample_tensors.shape[0] == len(all_sample_labels)
-    label_coder = LabelCoder()
+    label_coder = LabelCoder(is_one_hot=is_one_hot)
     encoded_labels = label_coder.encode_labels(all_sample_labels)
-    assert len(labeled_recordings.keys()) == encoded_labels.shape[1]
+    if is_one_hot:
+        assert len(labeled_recordings.keys()) == encoded_labels.shape[1]
+    else:
+        assert len(labeled_recordings.keys()) == len(np.unique(encoded_labels))
     return all_sample_tensors, encoded_labels, label_coder
 

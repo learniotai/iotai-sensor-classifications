@@ -16,7 +16,12 @@ def gesture_names():
 
 def test_label_encoder(gesture_names):
     """Test label encoder."""
-    label_coder = encode.LabelCoder()
-    one_hot_gestures = label_coder.encode_labels(gesture_names)
-    decoded_gestures = label_coder.decode_one_hots(one_hot_gestures)
+    label_coder_one_hot = encode.LabelCoder(is_one_hot=True)
+    one_hot_gestures = label_coder_one_hot.encode_labels(gesture_names)
+    decoded_gestures = label_coder_one_hot.decode(one_hot_gestures)
     assert all(decoded_gestures == gesture_names)
+
+    label_coder = encode.LabelCoder(is_one_hot=False)
+    gesture_codes = label_coder.encode_labels(gesture_names)
+    decoded = label_coder.decode(gesture_codes)
+    assert all(decoded == gesture_names)

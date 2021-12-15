@@ -35,7 +35,7 @@ def test_parse_gestures(gesture_recordings):
     # and standard deviation to drift from mean=0 and std=1
     assert all(np.isclose(col_measure_means, 0.0, atol=0.02))
     assert all(np.isclose(col_measure_stds, 1.0, atol=0.01))
-    gesture_names = label_coder.decode_one_hots(encoded_labels)
+    gesture_names = label_coder.decode(encoded_labels)
     gesture_recording_n = pd.Series(gesture_names).value_counts()
     gesture_names_of_recs = gesture_recording_n.keys()
     for rec_name in gesture_names_of_recs:

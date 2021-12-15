@@ -8,22 +8,28 @@ from sklearn.preprocessing import OneHotEncoder
 
 class LabelCoder:
     """Label encoder and decoder."""
-    def __init__(self):
+    def __init__(self, is_one_hot=True):
         """Initialize encoder/decoder of labels."""
         self._label_encoder = LabelEncoder()
+        self._is_one_hot=is_one_hot
 
     def encode_labels(self, labels):
-        """One hot encode labels creating encoder/decoder.
+        """Encode labels creating encoder/decoder.
 
         :return:
         """
         int_labels = self._label_encoder.fit_transform(labels)
-        int_labels_transposed = int_labels.reshape(len(int_labels), 1)
-        one_hot_encoder = OneHotEncoder(sparse=False)
-        one_hot_encoded = one_hot_encoder.fit_transform(int_labels_transposed)
-        return one_hot_encoded
+        if self._is_one_hot:
+            int_labels_transposed = int_labels.reshape(len(int_labels), 1)
+            one_hot_encoder = OneHotEncoder(sparse=False)
+            one_hot_encoded = one_hot_encoder.fit_transform(int_labels_transposed)
+            return one_hot_encoded
+        else:
+            return int_labels
 
-    def decode_one_hots(self, label_codes):
-        """Decode one hot encode into labels."""
-        labels = self._label_encoder.inverse_transform([np.argmax(one) for one in label_codes])
-        return labels
+    def decode(self, label_codes):
+        """Decode encoded labels into text labels."""
+        if self._is_one_hot:
+            return self._label_encoder.inverse_transform([np.argmax(one) for one in label_codes])
+        else:
+            return self._label_encoder.inverse_transform(label_codes)

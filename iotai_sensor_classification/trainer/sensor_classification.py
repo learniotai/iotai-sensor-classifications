@@ -46,16 +46,16 @@ def train_gesture_classification(train_X, val_X, train_y, val_y):
     """
     train_X = Variable(torch.from_numpy(train_X)).float()
     val_X = Variable(torch.from_numpy(val_X)).float()
-    train_y = Variable(torch.from_numpy(train_y)).float()
-    val_y = Variable(torch.from_numpy(val_y)).float()
-    model = Model(input_dim=train_X.shape[1]*train_X.shape[2], output_dim=train_y.shape[1])
+    train_y = Variable(torch.from_numpy(train_y)).long()
+    val_y = Variable(torch.from_numpy(val_y)).long()
+    model = Model(input_dim=train_X.shape[1]*train_X.shape[2], output_dim=len(train_y.unique()))
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_fn = nn.CrossEntropyLoss()
     loss_list = np.zeros((EPOCHS,))
     accuracy_list = np.zeros((EPOCHS,))
     for epoch in tqdm.trange(EPOCHS):
         pred_y = model(train_X)
-        loss = loss_fn(pred_y, torch.argmax(train_y, dim=1))
+        loss = loss_fn(pred_y, train_y)
         loss_list[epoch] = loss.item()
 
         # Zero gradients
@@ -65,7 +65,7 @@ def train_gesture_classification(train_X, val_X, train_y, val_y):
 
         with torch.no_grad():
             pred_val_y = model(val_X)
-            correct = (torch.argmax(pred_val_y, dim=1) == torch.argmax(val_y, dim=1)).type(torch.FloatTensor)
+            correct = (torch.argmax(pred_val_y, dim=1) == val_y).type(torch.FloatTensor)
             accuracy_list[epoch] = correct.mean()
     val_df = pd.DataFrame({"val_loss": loss_list, "val_acc": accuracy_list})
     return model, val_df

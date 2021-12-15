@@ -16,7 +16,7 @@ def get_accelerometer_dataset():
     recordings = read_recordings(recordings_dir=recordings_dir)
     window_checked = check_windows(recordings)
     normed_gesture_measures, encoded_labels, label_coder = \
-        parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING)
+        parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING, is_one_hot=False)
     return normed_gesture_measures, encoded_labels, label_coder
 
 
@@ -32,9 +32,9 @@ def test_train_gesture_classification():
     assert len(train_X) == len(train_y)
     assert len(val_X) == len(val_y)
     assert len(test_X) == len(test_y)
-    train_y_labels = label_coder.decode_one_hots(train_y)
-    val_y_labels = label_coder.decode_one_hots(val_y)
-    test_y_labels = label_coder.decode_one_hots(test_y)
+    train_y_labels = label_coder.decode(train_y)
+    val_y_labels = label_coder.decode(val_y)
+    test_y_labels = label_coder.decode(test_y)
     assert len(train_y_labels) == len(train_y)
     assert len(val_y_labels) == len(val_y)
     assert len(test_y_labels) == len(test_y)
