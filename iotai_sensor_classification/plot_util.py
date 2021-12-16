@@ -147,7 +147,7 @@ def group_label_bars(group_labels: Dict, title: str, filepath: str=None):
     label_count_frame.index = group_label_names
     label_count_frame['dataset'] = group_label_names
     melted = pd.melt(label_count_frame, id_vars="dataset", var_name="gesture", value_name="count")
-    sns_plot = seaborn.factorplot(data=melted, x='dataset', hue='gesture', y='count', kind='bar')
+    sns_plot = seaborn.catplot(data=melted, x='dataset', hue='gesture', y='count', kind='bar')
     sns_plot.set(title=title)
     if filepath is not None:
         sns_plot.savefig(filepath)

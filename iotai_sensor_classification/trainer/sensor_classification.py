@@ -21,11 +21,11 @@ import pandas as pd
 EPOCHS = 200
 
 
-class Model(nn.Module):
+class LinearModel(nn.Module):
     """Model creation.
     """
     def __init__(self, input_dim, output_dim):
-        super(Model, self).__init__()
+        super(LinearModel, self).__init__()
         self.layer1 = nn.Linear(input_dim, 50)
         self.layer2 = nn.Linear(50, 50)
         self.layer3 = nn.Linear(50, output_dim)
@@ -39,7 +39,7 @@ class Model(nn.Module):
         return x
 
 
-def train_gesture_classification(train_X, val_X, train_y, val_y):
+def train_gesture_classification(model, train_X, val_X, train_y, val_y):
     """Train gesture classification from sensor data.
 
     :return:
@@ -48,7 +48,6 @@ def train_gesture_classification(train_X, val_X, train_y, val_y):
     val_X = Variable(torch.from_numpy(val_X)).float()
     train_y = Variable(torch.from_numpy(train_y)).long()
     val_y = Variable(torch.from_numpy(val_y)).long()
-    model = Model(input_dim=train_X.shape[1]*train_X.shape[2], output_dim=len(train_y.unique()))
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_fn = nn.CrossEntropyLoss()
     loss_list = np.zeros((EPOCHS,))

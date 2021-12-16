@@ -8,6 +8,10 @@ from iotai_sensor_classification.plot_util import group_label_bars
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.trainer.sensor_classification import train_gesture_classification
 from iotai_sensor_classification.plot_util import plot_columns
+from iotai_sensor_classification.trainer.sensor_classification import LinearModel
+import numpy as np
+
+TEST_OUTPUT = os.path.join("test_output", "gestures", "trainer")
 
 
 def get_accelerometer_dataset():
@@ -20,11 +24,8 @@ def get_accelerometer_dataset():
     return normed_gesture_measures, encoded_labels, label_coder
 
 
-def test_train_gesture_classification():
-    """
-    Test trainer gesture classification model from sensor data.
-    :return:
-    """
+def get_datasets():
+    """Get datasets and barplot datasets."""
     normed_gesture_measures, encoded_labels, label_coder = get_accelerometer_dataset()
     train_X, val_X, test_X, train_y, val_y, test_y = \
         dataset.split_dataset(normed_gesture_measures, encoded_labels, val_size=dataset.VALIDATION_SPLIT,
@@ -44,12 +45,22 @@ def test_train_gesture_classification():
     raw_labels['validation'] = val_y_labels
     raw_labels['test'] = test_y_labels
 
-    test_output = os.path.join("test_output", "gestures", "trainer")
-    os.makedirs(test_output, exist_ok=True)
-    group_label_bars(raw_labels, title="Gesture classification datasets label count",
-                     filepath=os.path.join(test_output, "gesture_classification_dataset.png"))
 
-    trained_model, val_df = train_gesture_classification(train_X, val_X, train_y, val_y)
+    os.makedirs(TEST_OUTPUT, exist_ok=True)
+    group_label_bars(raw_labels, title="Gesture classification datasets label count",
+                     filepath=os.path.join(TEST_OUTPUT, "gesture_classification_dataset.png"))
+    return train_X, val_X, test_X, train_y, val_y, test_y
+
+
+def test_train_gesture_classification_linear():
+    """Test trainer gesture classification model from sensor data.
+    :return:
+    """
+    train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
+
+    model = LinearModel(input_dim=train_X.shape[1] * train_X.shape[2], output_dim=len(np.unique(train_y)))
+    trained_model, val_df = train_gesture_classification(model, train_X, val_X, train_y, val_y)
     plot_columns(val_df, name="Gesture classification training validation",
-                 filepath=os.path.join(test_output, "gesture_classification_training_validation.png"),
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_validation.png"),
                  title_mean=False)
+
