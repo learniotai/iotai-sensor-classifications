@@ -1,14 +1,5 @@
 """Train sensor classification model."""
 
-import os
-import numpy as np
-import pandas as pd
-import torch
-from iotai_sensor_classification import dataset
-from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
-from iotai_sensor_classification.recording import read_recordings
-from iotai_sensor_classification.plot_util import group_label_bars
-from data.gestures import linear_accelerometer
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
@@ -47,11 +38,11 @@ class ConvModel(nn.Module):
         self._output_dim = output_dim
         # 1 input image channel, 6 output channels, 2x2 square convolution
         # kernel
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=2, padding=(0, 0))
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=2, padding=(0, 0))
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=2, padding=(1, 1))
+        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=2, padding=(1, 1))
         # an affine operation: y = Wx + b
-        # input size reduced by -1 * 2 = -2 for 2 convolutions with 2x2 kernels
-        self.fc1 = nn.Linear(in_features=16 * (input_dim[0]-2) * (input_dim[1]-2), out_features=120)
+        # input size increased by 1 * 2 = 2 for 2 padded convolutions with 2x2 kernels
+        self.fc1 = nn.Linear(in_features=16 * (input_dim[0]+2) * (input_dim[1]+2), out_features=120)
         self.fc2 = nn.Linear(in_features=120, out_features=84)
         self.fc3 = nn.Linear(in_features=84, out_features=output_dim)
 
