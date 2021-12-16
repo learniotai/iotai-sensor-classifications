@@ -50,7 +50,7 @@ def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertic
     if n_col <= side_a * (side_b-1):
         side_b = side_b - 1
     f, a = plt.subplots(side_a, side_b)
-    f.suptitle(f"{name} plots")
+    f.suptitle(f"{name}")
     x = 0
     y = 0
     for col in columns:

@@ -58,8 +58,9 @@ def test_train_gesture_classification_linear():
 
     model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2], output_dim=len(np.unique(train_y)))
     trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
-    plot_columns(val_df, name="Gesture classification training validation linear model",
-                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_val_linear.png"),
+    max_val_acc = val_df['val_acc'].max()
+    plot_columns(val_df, name=f"Gesture classification validation linear model, max acc={max_val_acc:.2}",
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_val_linear.png"),
                  title_mean=False)
 
 
@@ -72,6 +73,7 @@ def test_train_gesture_classification_conv():
     model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
                                             output_dim=len(np.unique(train_y)))
     trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
-    plot_columns(val_df, name="Gesture classification training validation conv 2D model",
-                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_val_conv.png"),
+    max_val_acc = val_df['val_acc'].max()
+    plot_columns(val_df, name=f"Gesture classification validation conv 2D model, max acc={max_val_acc:.2}",
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_val_conv.png"),
                  title_mean=False)
