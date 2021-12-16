@@ -6,9 +6,8 @@ from iotai_sensor_classification import dataset
 from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
 from iotai_sensor_classification.plot_util import group_label_bars
 from iotai_sensor_classification.recording import read_recordings
-from iotai_sensor_classification.trainer.sensor_classification import train_gesture_classification
+from iotai_sensor_classification.trainer import sensor_classification
 from iotai_sensor_classification.plot_util import plot_columns
-from iotai_sensor_classification.trainer.sensor_classification import LinearModel
 import numpy as np
 
 TEST_OUTPUT = os.path.join("test_output", "gestures", "trainer")
@@ -45,7 +44,6 @@ def get_datasets():
     raw_labels['validation'] = val_y_labels
     raw_labels['test'] = test_y_labels
 
-
     os.makedirs(TEST_OUTPUT, exist_ok=True)
     group_label_bars(raw_labels, title="Gesture classification datasets label count",
                      filepath=os.path.join(TEST_OUTPUT, "gesture_classification_dataset.png"))
@@ -58,9 +56,22 @@ def test_train_gesture_classification_linear():
     """
     train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
 
-    model = LinearModel(input_dim=train_X.shape[1] * train_X.shape[2], output_dim=len(np.unique(train_y)))
-    trained_model, val_df = train_gesture_classification(model, train_X, val_X, train_y, val_y)
-    plot_columns(val_df, name="Gesture classification training validation",
-                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_validation.png"),
+    model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2], output_dim=len(np.unique(train_y)))
+    trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    plot_columns(val_df, name="Gesture classification training validation linear model",
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_val_linear.png"),
                  title_mean=False)
 
+
+def test_train_gesture_classification_conv():
+    """Test trainer gesture classification model from sensor data.
+    :return:
+    """
+    train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
+
+    model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
+                                            output_dim=len(np.unique(train_y)))
+    trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    plot_columns(val_df, name="Gesture classification training validation conv 2D model",
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_classification_training_val_conv.png"),
+                 title_mean=False)
