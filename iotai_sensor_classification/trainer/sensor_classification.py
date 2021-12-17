@@ -7,6 +7,7 @@ from torch.autograd import Variable
 import tqdm
 import numpy as np
 import pandas as pd
+from sklearn import metrics
 
 
 EPOCHS = 200
@@ -85,3 +86,19 @@ def train_gesture_classification(model, train_X, val_X, train_y, val_y):
             accuracy_list[epoch] = correct.mean()
     val_df = pd.DataFrame({"val_loss": loss_list, "val_acc": accuracy_list})
     return val_df
+
+
+def test_accuracy(model, label_coder, test_X, test_y):
+    """
+
+    :return:
+    """
+    test_X = Variable(torch.from_numpy(test_X)).float()
+    test_y = Variable(torch.from_numpy(test_y)).long()
+    pred_y = model(test_X)
+    pred_y_index = torch.argmax(pred_y, dim=1)
+    accuracy = metrics.accuracy_score(pred_y_index, test_y)
+    pred_y_labels = label_coder.decode(pred_y_index)
+    test_y_labels = label_coder.decode(test_y)
+    test_matrix = metrics.confusion_matrix(y_true=test_y_labels, y_pred=pred_y_labels)
+    return accuracy, test_matrix

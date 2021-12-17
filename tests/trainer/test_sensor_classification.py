@@ -10,8 +10,9 @@ from iotai_sensor_classification.preprocess import check_windows, parse_recordin
 from iotai_sensor_classification.plot_util import group_label_bars
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.trainer import sensor_classification
-from iotai_sensor_classification.plot_util import plot_columns
+from iotai_sensor_classification.plot_util import plot_columns, plot_confusion_matrix
 import numpy as np
+
 
 TEST_OUTPUT = os.path.join("test_output", "gestures", "trainer")
 
@@ -50,14 +51,14 @@ def get_datasets():
     os.makedirs(TEST_OUTPUT, exist_ok=True)
     group_label_bars(raw_labels, title="Gesture classification datasets label count",
                      filepath=os.path.join(TEST_OUTPUT, "gesture_classification_dataset.png"))
-    return train_X, val_X, test_X, train_y, val_y, test_y
+    return train_X, val_X, test_X, train_y, val_y, test_y, label_coder
 
 
 def test_train_gesture_classification_linear():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
-    train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
+    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = get_datasets()
 
     model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2],
                                               output_dim=len(np.unique(train_y)))
@@ -72,13 +73,20 @@ def test_train_gesture_classification_linear():
                                                    output_dim=len(np.unique(train_y)))
     load_model.load_state_dict(torch.load(state_path))
     assert all(load_model.state_dict()['layer3.bias'] == model.state_dict()['layer3.bias'])
+    test_accuracy, test_matrix = sensor_classification.test_accuracy(load_model, label_coder, test_X, test_y)
+    unique_y = np.unique(train_y)
+    unique_y.sort()
+    unique_y_labels = label_coder.decode(unique_y)
+    plot_confusion_matrix(test_matrix, classes=unique_y_labels,
+                          title=f"Gesture classification linear acc={test_accuracy:.2}",
+                          output_path=os.path.join(TEST_OUTPUT, "gesture_classification_linear_confusion.png"))
 
 
 def test_train_gesture_classification_conv():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
-    train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
+    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = get_datasets()
 
     model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
                                             output_dim=len(np.unique(train_y)))
@@ -93,3 +101,10 @@ def test_train_gesture_classification_conv():
                                             output_dim=len(np.unique(train_y)))
     load_model.load_state_dict(torch.load(state_path))
     assert all(load_model.state_dict()['fc3.bias'] == model.state_dict()['fc3.bias'])
+    test_accuracy, test_matrix = sensor_classification.test_accuracy(load_model, label_coder, test_X, test_y)
+    unique_y = np.unique(train_y)
+    unique_y.sort()
+    unique_y_labels = label_coder.decode(unique_y)
+    plot_confusion_matrix(test_matrix, classes=unique_y_labels,
+                          title=f"Gesture classification conv acc={test_accuracy:.2}",
+                          output_path=os.path.join(TEST_OUTPUT, "gesture_classification_conv_confusion.png"))
