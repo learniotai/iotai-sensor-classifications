@@ -1,6 +1,9 @@
 """Test training of sensor classification."""
 
 import os
+
+import torch
+
 from data.gestures import linear_accelerometer
 from iotai_sensor_classification import dataset
 from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
@@ -56,12 +59,19 @@ def test_train_gesture_classification_linear():
     """
     train_X, val_X, test_X, train_y, val_y, test_y = get_datasets()
 
-    model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2], output_dim=len(np.unique(train_y)))
-    trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2],
+                                              output_dim=len(np.unique(train_y)))
+    val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    state_path = os.path.join(TEST_OUTPUT, "gesture_classification_linear_state_dict.zip")
+    torch.save(model.state_dict(), state_path)
     max_val_acc = val_df['val_acc'].max()
     plot_columns(val_df, name=f"Gesture classification validation linear model, max acc={max_val_acc:.2}",
                  filepath=os.path.join(TEST_OUTPUT, "gesture_classification_val_linear.png"),
                  title_mean=False)
+    load_model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2],
+                                                   output_dim=len(np.unique(train_y)))
+    load_model.load_state_dict(torch.load(state_path))
+    assert all(load_model.state_dict()['layer3.bias'] == model.state_dict()['layer3.bias'])
 
 
 def test_train_gesture_classification_conv():
@@ -72,8 +82,14 @@ def test_train_gesture_classification_conv():
 
     model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
                                             output_dim=len(np.unique(train_y)))
-    trained_model, val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    val_df = sensor_classification.train_gesture_classification(model, train_X, val_X, train_y, val_y)
+    state_path = os.path.join(TEST_OUTPUT, "gesture_classification_conv_state_dict.zip")
+    torch.save(model.state_dict(), state_path)
     max_val_acc = val_df['val_acc'].max()
     plot_columns(val_df, name=f"Gesture classification validation conv 2D model, max acc={max_val_acc:.2}",
                  filepath=os.path.join(TEST_OUTPUT, "gesture_classification_val_conv.png"),
                  title_mean=False)
+    load_model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
+                                            output_dim=len(np.unique(train_y)))
+    load_model.load_state_dict(torch.load(state_path))
+    assert all(load_model.state_dict()['fc3.bias'] == model.state_dict()['fc3.bias'])

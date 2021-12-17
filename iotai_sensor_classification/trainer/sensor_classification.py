@@ -84,4 +84,4 @@ def train_gesture_classification(model, train_X, val_X, train_y, val_y):
             correct = (torch.argmax(pred_val_y, dim=1) == val_y).type(torch.FloatTensor)
             accuracy_list[epoch] = correct.mean()
     val_df = pd.DataFrame({"val_loss": loss_list, "val_acc": accuracy_list})
-    return model, val_df
+    return val_df
