@@ -27,7 +27,7 @@ def get_accelerometer_dataset():
     return normed_gesture_measures, encoded_labels, label_coder
 
 
-def get_datasets():
+def get_datasets(plot_path, title):
     """Get datasets and barplot datasets."""
     normed_gesture_measures, encoded_labels, label_coder = get_accelerometer_dataset()
     train_X, val_X, test_X, train_y, val_y, test_y = \
@@ -49,8 +49,8 @@ def get_datasets():
     raw_labels['test'] = test_y_labels
 
     os.makedirs(TEST_OUTPUT, exist_ok=True)
-    group_label_bars(raw_labels, title="Gesture classification datasets label count",
-                     filepath=os.path.join(TEST_OUTPUT, "gesture_classification_dataset.png"))
+    group_label_bars(raw_labels, title=title,
+                     filepath=plot_path)
     return train_X, val_X, test_X, train_y, val_y, test_y, label_coder
 
 
@@ -58,7 +58,9 @@ def test_train_gesture_classification_linear():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
-    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = get_datasets()
+    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = \
+        get_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_linear.png"),
+                     "Gesture classification datasets label count linear")
 
     model = sensor_classification.LinearModel(input_dim=train_X.shape[1] * train_X.shape[2],
                                               output_dim=len(np.unique(train_y)))
@@ -86,7 +88,9 @@ def test_train_gesture_classification_conv():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
-    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = get_datasets()
+    train_X, val_X, test_X, train_y, val_y, test_y, label_coder = \
+        get_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_conv.png"),
+                     "Gesture classification datasets label count conv")
 
     model = sensor_classification.ConvModel(input_dim=(train_X.shape[1], train_X.shape[2]),
                                             output_dim=len(np.unique(train_y)))
