@@ -55,22 +55,22 @@ class ConvModel(nn.Module):
         return x
 
 
-def train_gesture_classification(model, train_X, val_X, train_y, val_y):
+def train_gesture_classification(model, X_train, X_val, y_train, y_val):
     """Train gesture classification from sensor data.
 
     :return:
     """
-    train_X = Variable(torch.from_numpy(train_X)).float()
-    val_X = Variable(torch.from_numpy(val_X)).float()
-    train_y = Variable(torch.from_numpy(train_y)).long()
-    val_y = Variable(torch.from_numpy(val_y)).long()
+    X_train = Variable(torch.from_numpy(X_train)).float()
+    X_val = Variable(torch.from_numpy(X_val)).float()
+    y_train = Variable(torch.from_numpy(y_train)).long()
+    y_val = Variable(torch.from_numpy(y_val)).long()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_fn = nn.CrossEntropyLoss()
     loss_list = np.zeros((EPOCHS,))
     accuracy_list = np.zeros((EPOCHS,))
     for epoch in tqdm.trange(EPOCHS):
-        pred_y = model(train_X)
-        loss = loss_fn(pred_y, train_y)
+        pred_y = model(X_train)
+        loss = loss_fn(pred_y, y_train)
         loss_list[epoch] = loss.item()
 
         # Zero gradients
@@ -79,8 +79,8 @@ def train_gesture_classification(model, train_X, val_X, train_y, val_y):
         optimizer.step()
 
         with torch.no_grad():
-            pred_val_y = model(val_X)
-            correct = (torch.argmax(pred_val_y, dim=1) == val_y).type(torch.FloatTensor)
+            pred_val_y = model(X_val)
+            correct = (torch.argmax(pred_val_y, dim=1) == y_val).type(torch.FloatTensor)
             accuracy_list[epoch] = correct.mean()
     val_df = pd.DataFrame({"val_loss": loss_list, "val_acc": accuracy_list})
     return val_df
