@@ -7,12 +7,18 @@ class ModelCall:
     def __init__(self, model, decode):
         """Make a callable model function object.
 
-        :param model:
+        :param model: Pytorch model that return softmax values.
+        :param decode: function to decode model output into classification values.
         """
         self._model = model
         self._decode = decode
 
     def __call__(self, x):
+        """Call the model object.
+
+        :param x: numpy array or torch.Tensor input data.
+        :return: classification label.
+        """
         if not isinstance(x, torch.Tensor):
             x = Variable(torch.from_numpy(x)).float()
         pred_y = self._model(x)
