@@ -4,12 +4,11 @@ import os
 
 import torch
 
+from iotai_sensor_classification.dataset import prepare_datasets
 from iotai_sensor_classification.model_handler import ModelCall
-from iotai_sensor_classification.evaluation import evaluate_prediction, evaluate_model
+from iotai_sensor_classification.evaluation import evaluate_prediction
 from data.gestures import linear_accelerometer
-from iotai_sensor_classification import dataset
 from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
-from iotai_sensor_classification.plot_util import group_label_bars
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.trainer import sensor_classification
 from iotai_sensor_classification.plot_util import plot_columns, plot_confusion_matrix
@@ -29,40 +28,13 @@ def get_accelerometer_dataset():
     return normed_gesture_measures, encoded_labels, label_coder
 
 
-def get_datasets(plot_path, title):
-    """Get datasets and barplot datasets."""
-    normed_gesture_measures, encoded_labels, label_coder = get_accelerometer_dataset()
-    train_X, val_X, test_X, train_y, val_y, test_y = \
-        dataset.split_dataset(normed_gesture_measures, encoded_labels, val_size=dataset.VALIDATION_SPLIT,
-                              test_size=dataset.TEST_SPLIT)
-    assert len(train_X) == len(train_y)
-    assert len(val_X) == len(val_y)
-    assert len(test_X) == len(test_y)
-    train_y_labels = label_coder.decode(train_y)
-    val_y_labels = label_coder.decode(val_y)
-    test_y_labels = label_coder.decode(test_y)
-    assert len(train_y_labels) == len(train_y)
-    assert len(val_y_labels) == len(val_y)
-    assert len(test_y_labels) == len(test_y)
-
-    raw_labels = {}
-    raw_labels['train'] = train_y_labels
-    raw_labels['validation'] = val_y_labels
-    raw_labels['test'] = test_y_labels
-
-    os.makedirs(TEST_OUTPUT, exist_ok=True)
-    group_label_bars(raw_labels, title=title,
-                     filepath=plot_path)
-    return train_X, val_X, test_X, train_y, val_y, test_y, label_coder
-
-
 def test_train_gesture_classification_linear():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
-        get_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_linear.png"),
-                     "Gesture classification datasets label count linear")
+        prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_linear.png"),
+                     "Gesture classification datasets label count linear", get_accelerometer_dataset, TEST_OUTPUT)
 
     model = sensor_classification.LinearModel(input_dim=X_train.shape[1] * X_train.shape[2],
                                               output_dim=len(np.unique(y_train)))
@@ -92,8 +64,8 @@ def test_train_gesture_classification_conv():
     :return:
     """
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
-        get_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_conv.png"),
-                     "Gesture classification datasets label count conv")
+        prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_conv.png"),
+                     "Gesture classification datasets label count conv", get_accelerometer_dataset, TEST_OUTPUT)
 
     model = sensor_classification.ConvModel(input_dim=(X_train.shape[1], X_train.shape[2]),
                                             output_dim=len(np.unique(y_train)))
