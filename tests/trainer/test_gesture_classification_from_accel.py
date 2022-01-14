@@ -4,12 +4,10 @@ import os
 
 import torch
 
-from iotai_sensor_classification.dataset import prepare_datasets
+from iotai_sensor_classification.dataset import prepare_datasets, read_dataset
 from iotai_sensor_classification.model_handler import ModelCall
 from iotai_sensor_classification.evaluation import evaluate_prediction
 from data.gestures import linear_accelerometer
-from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
-from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.trainer import sensor_classification
 from iotai_sensor_classification.plot_util import plot_columns, plot_confusion_matrix
 import numpy as np
@@ -18,23 +16,15 @@ import numpy as np
 TEST_OUTPUT = os.path.join("test_output", "gestures", "trainer")
 
 
-def get_accelerometer_dataset():
-    """Read gesture recordings for all tests in file."""
-    recordings_dir = os.path.dirname(linear_accelerometer.__file__)
-    recordings = read_recordings(recordings_dir=recordings_dir)
-    window_checked = check_windows(recordings)
-    normed_gesture_measures, encoded_labels, label_coder = \
-        parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING, is_one_hot=False)
-    return normed_gesture_measures, encoded_labels, label_coder
-
-
 def test_train_gesture_classification_linear():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
+    def get_dataset():
+        return read_dataset(os.path.dirname(linear_accelerometer.__file__))
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_linear.png"),
-                     "Gesture classification datasets label count linear", get_accelerometer_dataset, TEST_OUTPUT)
+                     "Gesture classification datasets label count linear", get_dataset, TEST_OUTPUT)
 
     model = sensor_classification.LinearModel(input_dim=X_train.shape[1] * X_train.shape[2],
                                               output_dim=len(np.unique(y_train)))
@@ -63,9 +53,11 @@ def test_train_gesture_classification_conv():
     """Test trainer gesture classification model from sensor data.
     :return:
     """
+    def get_dataset():
+        return read_dataset(os.path.dirname(linear_accelerometer.__file__))
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_conv.png"),
-                     "Gesture classification datasets label count conv", get_accelerometer_dataset, TEST_OUTPUT)
+                     "Gesture classification datasets label count conv", get_dataset, TEST_OUTPUT)
 
     model = sensor_classification.ConvModel(input_dim=(X_train.shape[1], X_train.shape[2]),
                                             output_dim=len(np.unique(y_train)))
