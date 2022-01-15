@@ -42,7 +42,7 @@ def test_train_gesture_classification_linear():
 
     model = sensor_classification.LinearModel(input_dim=X_train.shape[1] * X_train.shape[2],
                                               output_dim=len(np.unique(y_train)))
-    val_df = sensor_classification.train_gesture_classification(model, X_train, X_val, y_train, y_val)
+    val_df = sensor_classification.train_gesture_classification(model, X_train, y_train, X_val, y_val)
     state_path = os.path.join(TEST_OUTPUT, "gesture_class_gyro_linear_state_dict.zip")
     torch.save(model.state_dict(), state_path)
     max_val_acc = val_df['val_acc'].max()
@@ -75,7 +75,7 @@ def test_train_gesture_classification_conv():
 
     model = sensor_classification.ConvModel(input_dim=(X_train.shape[1], X_train.shape[2]),
                                             output_dim=len(np.unique(y_train)))
-    val_df = sensor_classification.train_gesture_classification(model, X_train, X_val, y_train, y_val)
+    val_df = sensor_classification.train_gesture_classification(model, X_train, y_train, X_val, y_val)
     state_path = os.path.join(TEST_OUTPUT, "gesture_class_gyro_conv_state_dict.zip")
     torch.save(model.state_dict(), state_path)
     max_val_acc = val_df['val_acc'].max()

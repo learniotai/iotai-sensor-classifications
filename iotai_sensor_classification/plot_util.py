@@ -56,10 +56,12 @@ def plot_columns(data: pd.core.frame.DataFrame, name: str, filepath=None, vertic
     y = 0
     for col in columns:
         col_data = data[col]
-        if side_b > 1:
+        if side_a > 1 and side_b > 1:
             axe = a[x][y]
-        else:
+        elif side_a > 1:
             axe = a[x]
+        else:
+            axe = a
         axe.plot(col_data)
         title_add_mean = ""
         if title_mean:

@@ -55,19 +55,21 @@ class ConvModel(nn.Module):
         return x
 
 
-def train_gesture_classification(model, X_train, X_val, y_train, y_val):
+def train_gesture_classification(model, X_train, y_train, X_val=None, y_val=None):
     """Train gesture classification from sensor data.
 
     :return:
     """
     X_train = Variable(torch.from_numpy(X_train)).float()
-    X_val = Variable(torch.from_numpy(X_val)).float()
     y_train = Variable(torch.from_numpy(y_train)).long()
-    y_val = Variable(torch.from_numpy(y_val)).long()
+    if X_val is not None and y_val is not None:
+        X_val = Variable(torch.from_numpy(X_val)).float()
+        y_val = Variable(torch.from_numpy(y_val)).long()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_fn = nn.CrossEntropyLoss()
     loss_list = np.zeros((EPOCHS,))
-    accuracy_list = np.zeros((EPOCHS,))
+    val_accuracy_list = np.zeros((EPOCHS,))
+    val_loss_list = np.zeros((EPOCHS,))
     for epoch in tqdm.trange(EPOCHS):
         pred_y = model(X_train)
         loss = loss_fn(pred_y, y_train)
@@ -77,10 +79,14 @@ def train_gesture_classification(model, X_train, X_val, y_train, y_val):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        if X_val is not None and y_val is not None:
+            with torch.no_grad():
+                pred_val_y = model(X_val)
+                correct = (torch.argmax(pred_val_y, dim=1) == y_val).type(torch.FloatTensor)
+                val_accuracy_list[epoch] = correct.mean()
+                val_loss = loss_fn(pred_val_y, y_val)
+                val_loss_list[epoch] = val_loss
+    if X_val is not None and y_val is not None:
+        return pd.DataFrame({"train_loss": loss_list, "val_loss": val_loss_list, "val_acc": val_accuracy_list})
 
-        with torch.no_grad():
-            pred_val_y = model(X_val)
-            correct = (torch.argmax(pred_val_y, dim=1) == y_val).type(torch.FloatTensor)
-            accuracy_list[epoch] = correct.mean()
-    val_df = pd.DataFrame({"val_loss": loss_list, "val_acc": accuracy_list})
-    return val_df
+    return pd.DataFrame({"train_loss": loss_list})
