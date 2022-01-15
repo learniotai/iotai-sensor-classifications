@@ -2,21 +2,19 @@
 
 import os
 from iotai_sensor_classification import dataset
-from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
+from iotai_sensor_classification.preprocess import check_windows, parse_recording
 from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.plot_util import group_label_bars
 from data.gestures import linear_accelerometer
-import pandas as pd
-import numpy as np
 
 
-def get_accelerometer_dataset():
+def get_accelerometer_dataset(samples_per_recording=160):
     """Read gesture recordings for all tests in file."""
     recordings_dir = os.path.dirname(linear_accelerometer.__file__)
     recordings = read_recordings(recordings_dir=recordings_dir)
     window_checked = check_windows(recordings)
     normed_gesture_measures, encoded_labels, label_coder = \
-        parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING)
+        parse_recording(window_checked, samples_per_recording=samples_per_recording)
     return normed_gesture_measures, encoded_labels, label_coder
 
 

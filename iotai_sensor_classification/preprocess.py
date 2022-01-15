@@ -6,10 +6,8 @@ import numpy as np
 from .normalization import normalize_mean_std
 from .encode import LabelCoder
 
-SAMPLES_PER_RECORDING = 160
 
-
-def check_windows(data, window_size=SAMPLES_PER_RECORDING):
+def check_windows(data, window_size=160):
     """Look for windows out of range at beginning and end and remove."""
     keep_data = {}
     for label_name in data.keys():

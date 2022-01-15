@@ -5,9 +5,12 @@ import pytest
 import numpy as np
 from data.gestures import linear_accelerometer
 from iotai_sensor_classification.recording import read_recordings
-from iotai_sensor_classification.preprocess import parse_recording, SAMPLES_PER_RECORDING, check_windows
+from iotai_sensor_classification.preprocess import parse_recording, check_windows
 from iotai_sensor_classification.plot_util import plot_lines
 import pandas as pd
+
+SAMPLES_PER_RECORDING = 160
+TEST_OUTPUT = os.path.join("test_output", "gestures", "preprocessed")
 
 
 @pytest.fixture
@@ -20,13 +23,12 @@ def gesture_recordings():
 
 def test_parse_gestures(gesture_recordings):
     """Test parsing gesture data creating labels into a dataset for training and or testing models."""
-    window_checked = check_windows(gesture_recordings)
-    test_output = os.path.join("test_output", "gestures", "preprocessed")
-    os.makedirs(test_output, exist_ok=True)
+    window_checked = check_windows(gesture_recordings, window_size=SAMPLES_PER_RECORDING)
+    os.makedirs(TEST_OUTPUT, exist_ok=True)
     for label_name in window_checked.keys():
         label_data = window_checked[label_name]
         plot_lines(label_data, name=f"{label_name} gesture filtered {SAMPLES_PER_RECORDING} windows",
-               filepath=os.path.join(test_output, f"{label_name}-filtered-windows.png"), vertical_tick_spacing=SAMPLES_PER_RECORDING)
+               filepath=os.path.join(TEST_OUTPUT, f"{label_name}-filtered-windows.png"), vertical_tick_spacing=SAMPLES_PER_RECORDING)
     normed_gesture_measures, encoded_labels, label_coder = parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING)
     n_col_measures = normed_gesture_measures.shape[2]
     col_measure_means = [normed_gesture_measures[:, :, col].mean() for col in range(n_col_measures)]
@@ -43,3 +45,5 @@ def test_parse_gestures(gesture_recordings):
         n_read = int(read_rec.shape[0]/SAMPLES_PER_RECORDING)
         # windows dropped in check
         assert gesture_recording_n[rec_name] <= n_read
+
+

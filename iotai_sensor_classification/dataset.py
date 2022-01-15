@@ -4,7 +4,7 @@ import os
 from sklearn.model_selection import train_test_split
 
 from iotai_sensor_classification.plot_util import group_label_bars
-from iotai_sensor_classification.preprocess import check_windows, parse_recording, SAMPLES_PER_RECORDING
+from iotai_sensor_classification.preprocess import check_windows, parse_recording
 from iotai_sensor_classification.recording import read_recordings
 
 TEST_SPLIT = 0.15
@@ -59,11 +59,11 @@ def prepare_datasets(plot_path, title, get_dataset, output_dir):
     return train_X, val_X, test_X, train_y, val_y, test_y, label_coder
 
 
-def read_dataset(recordings_dir):
+def read_dataset(recordings_dir, samples_per_recording=160):
     """Read gesture recordings for all tests in file."""
 
     recordings = read_recordings(recordings_dir=recordings_dir)
     window_checked = check_windows(recordings)
     normed_gesture_measures, encoded_labels, label_coder = \
-        parse_recording(window_checked, samples_per_recording=SAMPLES_PER_RECORDING, is_one_hot=False)
+        parse_recording(window_checked, samples_per_recording=samples_per_recording, is_one_hot=False)
     return normed_gesture_measures, encoded_labels, label_coder

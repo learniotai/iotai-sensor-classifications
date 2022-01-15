@@ -7,7 +7,9 @@ from iotai_sensor_classification.normalization import normalize_mean_std_dict
 from data.gestures import linear_accelerometer
 from iotai_sensor_classification.plot_util import column_histograms, plot_columns, \
     plot_lines, histogram_overlay
-from iotai_sensor_classification.preprocess import SAMPLES_PER_RECORDING
+
+
+SAMPLES_PER_RECORDING = 160
 
 
 def test_normalize_gesture_data():
