@@ -14,6 +14,7 @@ import numpy as np
 
 
 TEST_OUTPUT = os.path.join("test_output", "gestures", "trainer", "accel")
+SAMPLES_PER_RECORDING = 160
 
 
 def test_train_gesture_classification_linear():
@@ -21,7 +22,7 @@ def test_train_gesture_classification_linear():
     :return:
     """
     def get_dataset():
-        return read_dataset(os.path.dirname(linear_accelerometer.__file__))
+        return read_dataset(os.path.dirname(linear_accelerometer.__file__), SAMPLES_PER_RECORDING)
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_linear.png"),
                      "Gesture classification datasets label count linear", get_dataset, TEST_OUTPUT)
@@ -54,7 +55,7 @@ def test_train_gesture_classification_conv():
     :return:
     """
     def get_dataset():
-        return read_dataset(os.path.dirname(linear_accelerometer.__file__))
+        return read_dataset(os.path.dirname(linear_accelerometer.__file__), SAMPLES_PER_RECORDING)
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_classification_dataset_conv.png"),
                      "Gesture classification datasets label count conv", get_dataset, TEST_OUTPUT)

@@ -7,12 +7,14 @@ from iotai_sensor_classification.recording import read_recordings
 from iotai_sensor_classification.plot_util import group_label_bars
 from data.gestures import linear_accelerometer
 
+SAMPLES_PER_RECORDING = 160
 
-def get_accelerometer_dataset(samples_per_recording=160):
+
+def get_accelerometer_dataset(samples_per_recording):
     """Read gesture recordings for all tests in file."""
     recordings_dir = os.path.dirname(linear_accelerometer.__file__)
     recordings = read_recordings(recordings_dir=recordings_dir)
-    window_checked = check_windows(recordings)
+    window_checked = check_windows(recordings, samples_per_recording)
     normed_gesture_measures, encoded_labels, label_coder = \
         parse_recording(window_checked, samples_per_recording=samples_per_recording)
     return normed_gesture_measures, encoded_labels, label_coder
@@ -20,7 +22,7 @@ def get_accelerometer_dataset(samples_per_recording=160):
 
 def test_split_data():
     """Test splitting data"""
-    normed_gesture_measures, encoded_labels, label_coder = get_accelerometer_dataset()
+    normed_gesture_measures, encoded_labels, label_coder = get_accelerometer_dataset(SAMPLES_PER_RECORDING)
     train_X, val_X, test_X, train_y, val_y, test_y = \
         dataset.split_dataset(normed_gesture_measures, encoded_labels, val_size=dataset.VALIDATION_SPLIT,
                               test_size=dataset.TEST_SPLIT)

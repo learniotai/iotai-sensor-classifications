@@ -35,7 +35,7 @@ def test_train_gesture_classification_linear():
     :return:
     """
     def get_dataset():
-        return read_dataset(os.path.dirname(accelerometer_gyroscope.__file__))
+        return read_dataset(os.path.dirname(accelerometer_gyroscope.__file__), SAMPLES_PER_RECORDING)
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_class_gyro_data_linear.png"),
                      "Gesture classification datasets label count linear [accel, gyro]", get_dataset, TEST_OUTPUT)
@@ -68,7 +68,7 @@ def test_train_gesture_classification_conv():
     :return:
     """
     def get_dataset():
-        return read_dataset(os.path.dirname(accelerometer_gyroscope.__file__))
+        return read_dataset(os.path.dirname(accelerometer_gyroscope.__file__), SAMPLES_PER_RECORDING)
     X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
         prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_class_gyro_data_conv.png"),
                      "Gesture classification datasets label count conv [accel, gyro]", get_dataset, TEST_OUTPUT)
