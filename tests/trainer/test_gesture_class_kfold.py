@@ -4,7 +4,7 @@ import os
 
 import torch
 
-from iotai_sensor_classification.dataset import prepare_datasets, read_dataset, read_recordings
+from iotai_sensor_classification.dataset import read_dataset, read_recordings
 from iotai_sensor_classification.model_handler import ModelCall
 from iotai_sensor_classification.evaluation import evaluate_prediction
 from data.gestures import accelerometer_gyroscope
@@ -37,7 +37,7 @@ def test_train_gesture_class_kfold_linear():
     :return:
     """
     X, y, label_coder = read_dataset(os.path.dirname(accelerometer_gyroscope.__file__), SAMPLES_PER_RECORDING)
-    X_train_val, X_test, y_train_val, y_test = model_selection.train_test_split(X, y, test_size=0.20, shuffle=True)
+    X_train_val, X_test, y_train_val, y_test = model_selection.train_test_split(X, y, test_size=0.15, shuffle=True)
     kf = model_selection.KFold(n_splits=K_FOLDS)
     k_validations = []
     models = []
