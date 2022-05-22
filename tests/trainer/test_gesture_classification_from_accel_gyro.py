@@ -94,3 +94,35 @@ def test_train_gesture_classification_conv():
     plot_confusion_matrix(test_matrix, classes=unique_y_labels,
                           title=f"Gesture classification conv acc={test_accuracy_:.2} [accel, gyro]",
                           output_path=os.path.join(TEST_OUTPUT, "gesture_class_gyro_conv_confusion.png"))
+
+
+def test_train_gesture_classification_lstm():
+    """Test trainer gesture classification model from sensor data.
+    :return:
+    """
+    def get_dataset():
+        return read_dataset(os.path.dirname(accelerometer_gyroscope.__file__), SAMPLES_PER_RECORDING)
+    X_train, X_val, X_test, y_train, y_val, y_test, label_coder = \
+        prepare_datasets(os.path.join(TEST_OUTPUT, "gesture_class_gyro_data_lstm.png"),
+                     "Gesture classification datasets label count LSTM [accel, gyro]", get_dataset, TEST_OUTPUT)
+
+    model = sensor_classification.LstmModel(input_dim=(X_train.shape[1], X_train.shape[2]),
+                                            output_dim=len(np.unique(y_train)))
+    val_df = sensor_classification.train_gesture_classification(model, X_train, y_train, X_val, y_val)
+    state_path = os.path.join(TEST_OUTPUT, "gesture_class_gyro_lstm_state_dict.zip")
+    torch.save(model.state_dict(), state_path)
+    max_val_acc = val_df['val_acc'].max()
+    plot_columns(val_df, name=f"Gesture classification validation LSTM 2D model, max acc={max_val_acc:.2} [accel, gyro]",
+                 filepath=os.path.join(TEST_OUTPUT, "gesture_class_gyro_val_lstm.png"),
+                 title_mean=False)
+    load_model = sensor_classification.LstmModel(input_dim=(X_train.shape[1], X_train.shape[2]),
+                                            output_dim=len(np.unique(y_train)))
+    load_model.load_state_dict(torch.load(state_path))
+    model_call = ModelCall(model=load_model, decode=label_coder.decode)
+    test_accuracy_, test_matrix = evaluate_prediction(model_call, label_coder.decode, X_test, y_test)
+    unique_y = np.unique(y_train)
+    unique_y.sort()
+    unique_y_labels = label_coder.decode(unique_y)
+    plot_confusion_matrix(test_matrix, classes=unique_y_labels,
+                          title=f"Gesture classification LSTM acc={test_accuracy_:.2} [accel, gyro]",
+                          output_path=os.path.join(TEST_OUTPUT, "gesture_class_gyro_lstm_confusion.png"))

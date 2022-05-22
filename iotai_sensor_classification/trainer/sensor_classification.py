@@ -55,6 +55,27 @@ class ConvModel(nn.Module):
         return x
 
 
+class LstmModel(nn.Module):
+    """LSTM model."""
+    def __init__(self, input_dim, output_dim, hidden_size=32, num_layers=1):
+        super(LstmModel, self).__init__()
+        self._input_dim = input_dim
+        self._output_dim = output_dim
+        self._flat_dim = np.prod(input_dim)
+        self.lstm = nn.LSTM(input_size=input_dim[-1], hidden_size=hidden_size, num_layers=num_layers, bidirectional=True)
+        self.fc_hidden = nn.Linear(hidden_size * 2, output_dim)
+        self.fc_out = nn.Linear(self._flat_dim, output_dim)
+
+    def forward(self, x):
+        packed_output, (hidden_state, cell_state) = self.lstm(x)
+        hidden_output = torch.cat((hidden_state[-2, :, :], hidden_state[-1, :, :]), dim=1)
+        hidden_fc = self.fc_hidden(hidden_output)
+        flat = torch.flatten(hidden_fc)
+        output = self.fc_out(flat)
+        soft = F.softmax(output)
+        return soft
+
+
 def train_gesture_classification(model, X_train, y_train, X_val=None, y_val=None):
     """Train gesture classification from sensor data.
 
